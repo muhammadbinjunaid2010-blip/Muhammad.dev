@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "Message": {
+      "title": "Message",
+      "description": "User contact form submissions",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "User's name" },
+        "email": { "type": "string", "description": "User's email" },
+        "objective": { "type": "string", "description": "Type of inquiry" },
+        "message": { "type": "string", "description": "Detailed message from the user" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Submission timestamp" }
+      },
+      "required": ["name", "email", "objective", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Collection of contact messages"
+    }
+  }
+}
