@@ -174,14 +174,14 @@ function ArsenalGrid() {
             `}
           >
             <div className="flex items-center justify-between">
-              <div className="p-3 bg-white/5 rounded-xl text-white group-hover:text-blue-400 transition-colors">
+              <div className="p-3 bg-blue-100/50 dark:bg-white/5 rounded-xl text-blue-600 dark:text-white group-hover:text-blue-500 transition-colors border border-blue-200/50 dark:border-white/10 shadow-sm dark:shadow-none">
                 {item.icon}
               </div>
-              <div className="text-[10px] font-mono text-white/20 uppercase tracking-widest">{item.name.split(' ')[0]}</div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-white/20 uppercase tracking-widest">{item.name.split(' ')[0]}</div>
             </div>
             <div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">{item.name}</h3>
-              <p className="text-xs text-slate-500 dark:text-gray-500 mt-2 line-clamp-2 leading-relaxed font-medium dark:font-normal">{item.description}</p>
+              <p className="text-xs text-slate-600 dark:text-gray-500 mt-2 line-clamp-2 leading-relaxed font-medium dark:font-normal">{item.description}</p>
             </div>
           </motion.div>
         ))}

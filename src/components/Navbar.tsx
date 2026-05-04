@@ -55,14 +55,14 @@ export default function Navbar() {
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
           <motion.div
-            animate={{ y: theme === 'dark' ? 0 : -40 }}
+            animate={{ y: theme === 'dark' ? -20 : 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="flex flex-col items-center"
+            className="flex flex-col items-center gap-0"
           >
-            <div className="w-10 h-10 flex items-center justify-center">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
               <Moon size={18} />
             </div>
-            <div className="w-10 h-10 flex items-center justify-center">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
               <Sun size={18} />
             </div>
           </motion.div>

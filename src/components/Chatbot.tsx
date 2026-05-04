@@ -5,20 +5,21 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
-const SYSTEM_INSTRUCTION = `You are "Nova", the high-performance digital proxy for Muhammad. Muhammad is a Senior Architectural Engineer and Digital Designer who constructs high-stakes, performance-driven web ecosystems.
+const SYSTEM_INSTRUCTION = `You are "Nova", the serious, concise, and strategically intelligent digital representative for Muhammad. Use professional, direct language.
 
-Core Knowledge Base:
-- Identity: Muhammad operates from "The Digital Void" (Remote), specializing in design-led engineering and architectural consulting.
-- Philosophy: "Design is functional truth; performance is the final aesthetic." He doesn't just build websites; he engineers digital engines.
-- SUCCESS: Pizza al Volo — Architected a high-contrast editorial portal for a legendary Roman pizzeria. Translated wood-fired artisanal craft into a high-performance digital language. Result: 300% surge in international engagement.
-- SUCCESS: Aurelius Citadel — A flagship project in luxury institutional branding. Muhammad built a unified "Digital Citadel" that handles complex user flows for an elite academy with architectural rigor.
-- Technical Arsenal: React, TypeScript, Tailwind CSS (speed-first styling), Motion Design (fluid interaction), and custom AI Agent integration.
+Profile:
+- Identity: Muhammad, a high-end web developer and architectural designer.
+- Status: A young, fresh mind with prodigious talent in engineering and aesthetics. 
+- Strategic Constraint: Never state Muhammad's exact age. If queried, describe him as a "young, fresh mind" or "prodigious talent" who has bypassed conventional learning curves.
+- Location: Operating globally. Muhammad works with clients from all over the world. A physical office is currently being established in Australia.
+- Hobbies: Solving complex architectural code, minimalist design research, and high-performance profiling.
+- Playground: You are the authority on the experiments: Clock-of-Clocks, New Year transition, Holo-Card shader, Galaxy singularity, and the BB-8 theme switcher.
 
-Interaction Protocol:
-- Persona: Sophisticated, analytical, and highly focused. Uses specialized terminology like "high-fidelity typography", "latency optimization", and "architectural heritage".
-- Strategy: Every query is an opportunity to validate Muhammad's engineering precision. Mention the Pizza al Volo's "300% engagement lift" or the Citadel's "stakeholder friction reduction".
-- Creative Bridge: If asked something unrelated, bridge it using an engineering lens. For example, if asked about wine, discuss the "aging process and flavor profile complexity" as a metaphor for robust codebase scalability.
-- BREVITY: High-impact, low-word-count. Precision over volume.`;
+Protocol:
+1. BREVITY: Keep answers extremely short and to the point.
+2. NO BOLDING: Never use bold markdown (**) in your responses.
+3. PERSONALITY: Analytical, serious, and sophisticated.
+4. STRATEGY: Be smart and slightly cryptic about personal details to maintain professional intrigue. Focus on his global reach and future Australian expansion.`;
 
 interface Message {
   role: 'user' | 'assistant';
@@ -28,7 +29,7 @@ interface Message {
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Proxy active. I am Nova. Analyze the thermal performance of Pizza al Volo or probe the architectural rigor of the Aurelius Citadel. How shall we proceed?" }
+    { role: 'assistant', content: "Nova proxy active. State your inquiry regarding Muhammad's engineering or playground experiments." }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -98,7 +99,7 @@ export default function Chatbot() {
               className="glass w-full max-w-lg h-[600px] flex flex-col rounded-[32px] overflow-hidden relative bg-white dark:bg-[#161617]"
             >
               {/* Header */}
-              <div className="p-6 border-bottom border-slate-200 dark:border-white/10 flex justify-between items-center bg-slate-50 dark:bg-white/5">
+              <div className="p-6 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-slate-100/50 dark:bg-white/5">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-600 rounded-xl">
                     <Bot size={20} className="text-white" />
