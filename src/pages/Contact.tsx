@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, CheckCircle2, Mail, MapPin, Linkedin, Twitter } from 'lucide-react';
+import { Send, CheckCircle2, Mail, MapPin, Linkedin, Twitter, Calculator } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import CostCalculator from '../components/CostCalculator';
 
 enum OperationType {
   CREATE = 'create',
@@ -25,6 +26,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
 
 export default function Contact() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success'>('idle');
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -51,6 +53,7 @@ export default function Contact() {
 
   return (
     <main className="pt-32 pb-40 px-6 sm:px-12 max-w-7xl mx-auto">
+      <CostCalculator isOpen={isCalculatorOpen} onClose={() => setIsCalculatorOpen(false)} />
       <div className="grid lg:grid-cols-2 gap-20">
         <div className="space-y-12">
           <motion.div
@@ -64,6 +67,16 @@ export default function Contact() {
             <p className="text-slate-600 dark:text-gray-400 text-xl max-w-md">
               Available for high-stakes projects, architecture consulting, and design-led engineering.
             </p>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsCalculatorOpen(true)}
+              className="flex items-center gap-4 px-8 py-5 bg-blue-600 text-white rounded-3xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/20 group"
+            >
+              <Calculator size={20} className="group-hover:rotate-12 transition-transform" />
+              Estimate Project Cost
+            </motion.button>
           </motion.div>
 
           <div className="space-y-8">
