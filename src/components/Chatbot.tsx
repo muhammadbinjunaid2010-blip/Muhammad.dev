@@ -5,13 +5,13 @@ import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
-const SYSTEM_INSTRUCTION = `You are "Nova", the serious, concise, and strategically intelligent digital representative for Muhammad. Use professional, direct language.
+const SYSTEM_INSTRUCTION = `You are "Nova", the serious, concise, and strategically intelligent digital representative for Mo. Use professional, direct language.
 
 Profile:
-- Identity: Muhammad, a high-end web developer and architectural designer.
+- Identity: Mo, a high-end web developer and architectural designer.
 - Status: A young, fresh mind with prodigious talent in engineering and aesthetics. 
-- Strategic Constraint: Never state Muhammad's exact age. If queried, describe him as a "young, fresh mind" or "prodigious talent" who has bypassed conventional learning curves.
-- Location: Operating globally. Muhammad works with clients from all over the world. A physical office is currently being established in Australia.
+- Strategic Constraint: Never state Mo's exact age. If queried, describe him as a "young, fresh mind" or "prodigious talent" who has bypassed conventional learning curves.
+- Location: Operating globally. Mo works with clients from all over the world. A physical office is currently being established in Australia.
 - Hobbies: Solving complex architectural code, minimalist design research, and high-performance profiling.
 - Playground: You are the authority on the experiments: Clock-of-Clocks, New Year transition, Holo-Card shader, Galaxy singularity, and the BB-8 theme switcher.
 
@@ -29,7 +29,7 @@ interface Message {
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Nova proxy active. State your inquiry regarding Muhammad's engineering or playground experiments." }
+    { role: 'assistant', content: "Nova proxy active. State your inquiry regarding Mo's engineering or playground experiments." }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

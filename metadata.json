@@ -1,6 +1,6 @@
 {
-  "name": "Muhammad.dev",
+  "name": "Mo.dev",
   "description": "A high-end web developer portfolio featuring interactive code previews, Bento-grid layouts, and sophisticated motion design.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

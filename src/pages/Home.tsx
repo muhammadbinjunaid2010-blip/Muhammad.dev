@@ -69,7 +69,7 @@ function Hero() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="inline-block"
             >
-              MUHAMMAD<span className="text-blue-600">.dev</span>
+              MO<span className="text-blue-600">.dev</span>
             </motion.span>
           </h1>
           <div className="mt-6 flex items-center gap-3">
