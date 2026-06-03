@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { Terminal, Cpu, Database, Palette, Sparkles as SparklesIcon } from 'lucide-react';
 
@@ -121,12 +121,50 @@ function Hero() {
             </div>
             <pre className="text-blue-400 whitespace-pre-wrap">{code}</pre>
           </div>
-          <div className="p-12 flex items-center justify-center bg-[#0a0a0b] relative">
+          <div className="p-12 flex items-center justify-center bg-[#0a0a0b] relative min-h-[220px]">
             <motion.div 
-              className={`p-10 ${style.bg} ${style.rounded} shadow-2xl shadow-blue-500/20 text-center transition-all duration-700 relative z-10`}
+              className={`p-8 ${style.bg} ${style.rounded} shadow-2xl shadow-blue-500/20 text-center md:text-left transition-all duration-700 relative z-10 border border-white/5 min-w-[280px] min-h-[140px] flex flex-col justify-center`}
+              layout
             >
-               <h3 className="text-xl font-bold mb-2">LIVE PREVIEW</h3>
-               <p className="text-[10px] uppercase font-bold tracking-widest opacity-60">Architecting Reality</p>
+              <AnimatePresence mode="wait">
+                {code.includes('The Magic') ? (
+                  <motion.h3 
+                    key="header-real"
+                    initial={{ opacity: 0, y: 5 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0 }}
+                    className="text-2xl font-bold text-white leading-tight tracking-tight"
+                  >
+                    The Magic of Tailwind
+                  </motion.h3>
+                ) : (
+                  <motion.div 
+                    key="header-skeleton"
+                    exit={{ opacity: 0 }}
+                    className="h-6 w-32 bg-white/10 animate-pulse rounded mx-auto md:mx-0" 
+                  />
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {code.includes('Logic translates') ? (
+                  <motion.p 
+                    key="para-real"
+                    initial={{ opacity: 0, y: 5 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    exit={{ opacity: 0 }}
+                    className="text-xs text-white/70 mt-3 font-medium leading-relaxed"
+                  >
+                    Logic translates to UI in real-time.
+                  </motion.p>
+                ) : (
+                  <motion.div 
+                    key="para-skeleton"
+                    exit={{ opacity: 0 }}
+                    className="h-4 w-48 bg-white/5 animate-pulse rounded mx-auto md:mx-0 mt-3" 
+                  />
+                )}
+              </AnimatePresence>
             </motion.div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-600/5 blur-3xl" />
           </div>
@@ -207,7 +245,7 @@ function FeaturedWork() {
         </button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {[
           { 
             id: 1, 
@@ -224,6 +262,14 @@ function FeaturedWork() {
             img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop',
             preview: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop',
             liveLink: 'https://aurelius-academy-official.vercel.app/'
+          },
+          { 
+            id: 3, 
+            name: 'Palo Drive Thru Cafe', 
+            desc: 'A lightning-fast specialty coffee drive-thru portal set in Melton, Victoria. Maximizing velocity for commuters without sacrificing artisanal warmth.',
+            img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1200&auto=format&fit=crop',
+            preview: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200&auto=format&fit=crop',
+            liveLink: 'https://palo-drivethru.vercel.app'
           }
         ].map((project) => (
           <ProjectCard key={project.id} project={project} />

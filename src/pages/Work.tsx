@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
-import { useLocation } from 'react-router-dom';
-import { ExternalLink, Github, ArrowRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ExternalLink, Github, ArrowRight, X } from 'lucide-react';
 
 const projects = [
   {
@@ -25,11 +25,33 @@ const projects = [
     wireframe: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800&auto=format&fit=crop',
     color: 'from-indigo-600/20 to-blue-900/20',
     liveLink: 'https://aurelius-academy-official.vercel.app/'
+  },
+  {
+    id: 3,
+    title: 'Palo Drive Thru Cafe',
+    tagline: 'Drive-Thru Specialty Coffee & High-Velocity Transit Architecture',
+    challenge: 'Based in Melton, Victoria, this premier drive-thru cafe needed an elegant, streamlined online ordering interface that matched the quick transit speed of coffee enthusiasts. The challenge lay in creating a layout that maintains warmth and rich aesthetic identity while delivering ultra-fast loading times and effortless navigation on mobile devices.',
+    solution: 'I engineered a lightning-fast, highly intuitive digital portal for high-velocity commuters. Combining robust, high-performance responsive frameworks with elegant beverage photography and fluid ordering layout motions, the portal maximizes transit efficiency without sacrificing the artisanal warmth of specialty coffee.',
+    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1200&auto=format&fit=crop',
+    wireframe: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop',
+    color: 'from-amber-650/20 to-orange-950/20',
+    liveLink: 'https://palo-drivethru.vercel.app'
   }
 ];
 
 export default function Work() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [toast, setToast] = useState<{ show: boolean; projectTitle: string } | null>(null);
+
+  useEffect(() => {
+    if (toast?.show) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   useEffect(() => {
     if (location.hash) {
@@ -46,7 +68,7 @@ export default function Work() {
   }, [location]);
 
   return (
-    <main className="pt-32 pb-40 px-6 sm:px-12 max-w-7xl mx-auto space-y-40">
+    <main className="relative pt-32 pb-40 px-6 sm:px-12 max-w-7xl mx-auto space-y-40">
       <header className="max-w-3xl">
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
@@ -63,10 +85,65 @@ export default function Work() {
       <div className="space-y-60">
         {projects.map((project, index) => (
           <div key={project.id} id={`project-${project.id}`}>
-            <ProjectSection project={project} index={index} />
+            <ProjectSection 
+              project={project} 
+              index={index} 
+              onGithubClick={() => setToast({ show: true, projectTitle: project.title })}
+            />
           </div>
         ))}
       </div>
+
+      {/* Toast Notification (LinkedIn style, elegant blue slide-in) */}
+      <AnimatePresence>
+        {toast?.show && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, x: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ type: "spring", damping: 20, stiffness: 200 }}
+            className="fixed bottom-24 right-6 sm:right-12 z-[100] max-w-sm w-[90%] bg-[#0a66c2] text-white p-5 rounded-2xl shadow-2xl border border-blue-400/30 flex flex-col gap-4 font-sans"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex gap-3">
+                <div className="bg-white/10 p-2 rounded-xl mt-0.5 shrink-0 flex items-center justify-center">
+                  <Github size={20} className="text-white" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm tracking-wide text-white">Secure Codebase Restricted</h4>
+                  <p className="text-xs text-blue-100 mt-1 leading-relaxed">
+                    The code for <span className="font-semibold text-white">{toast.projectTitle}</span> is currently stored in a protected vault. Request Mo for temporary workspace access.
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setToast(null)}
+                className="text-white/60 hover:text-white p-1 rounded-lg transition-colors cursor-pointer"
+                aria-label="Dismiss"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="flex gap-2 justify-end items-center text-xs">
+              <button 
+                onClick={() => setToast(null)}
+                className="px-3 py-1.5 font-bold uppercase tracking-widest text-[10px] text-white/80 hover:text-white transition-colors cursor-pointer"
+              >
+                Dismiss
+              </button>
+              <button 
+                onClick={() => {
+                  setToast(null);
+                  navigate('/contact');
+                }}
+                className="px-4 py-2 bg-white text-[#0a66c2] hover:bg-blue-50 hover:text-blue-800 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow shadow-black/10 cursor-pointer"
+              >
+                Request Access
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
@@ -74,6 +151,7 @@ export default function Work() {
 interface ProjectSectionProps {
   project: any;
   index: number;
+  onGithubClick: () => void;
 }
 
 interface ScrollRevealBoxProps {
@@ -81,7 +159,7 @@ interface ScrollRevealBoxProps {
   color: string;
 }
 
-const ProjectSection: React.FC<ProjectSectionProps> = ({ project, index }) => {
+const ProjectSection: React.FC<ProjectSectionProps> = ({ project, index, onGithubClick }) => {
   const container = React.useRef(null);
   const { scrollYProgress } = useScroll({
     target: container,
@@ -124,7 +202,10 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({ project, index }) => {
           >
             View Live <ExternalLink size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </a>
-          <button className="flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+          <button 
+            onClick={onGithubClick}
+            className="flex items-center justify-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+          >
             Source Code <Github size={14} />
           </button>
         </div>

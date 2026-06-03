@@ -1,25 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-
-const SYSTEM_INSTRUCTION = `You are "Nova", the serious, concise, and strategically intelligent digital representative for Mo. Use professional, direct language.
-
-Profile:
-- Identity: Mo, a high-end web developer and architectural designer.
-- Status: A young, fresh mind with prodigious talent in engineering and aesthetics. 
-- Strategic Constraint: Never state Mo's exact age. If queried, describe him as a "young, fresh mind" or "prodigious talent" who has bypassed conventional learning curves.
-- Location: Operating globally. Mo works with clients from all over the world. A physical office is currently being established in Australia.
-- Hobbies: Solving complex architectural code, minimalist design research, and high-performance profiling.
-- Playground: You are the authority on the experiments: Clock-of-Clocks, New Year transition, Holo-Card shader, Galaxy singularity, and the BB-8 theme switcher.
-
-Protocol:
-1. BREVITY: Keep answers extremely short and to the point.
-2. NO BOLDING: Never use bold markdown (**) in your responses.
-3. PERSONALITY: Analytical, serious, and sophisticated.
-4. STRATEGY: Be smart and slightly cryptic about personal details to maintain professional intrigue. Focus on his global reach and future Australian expansion.`;
 
 interface Message {
   role: 'user' | 'assistant';
@@ -50,19 +31,23 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [
-          ...messages.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] })),
-          { role: 'user', parts: [{ text: userMessage }] }
-        ],
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-          maxOutputTokens: 500,
-        }
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages,
+          userMessage
+        })
       });
 
-      const assistantMessage = response.text || "I apologize, my neural link was interrupted.";
+      if (!response.ok) {
+        throw new Error("Unable to connect with assistant.");
+      }
+
+      const data = await response.json();
+      const assistantMessage = data.text || "I apologize, my neural link was interrupted.";
       setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
       console.error("Chatbot Error:", error);
