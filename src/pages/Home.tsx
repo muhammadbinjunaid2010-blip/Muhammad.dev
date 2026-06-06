@@ -2,14 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { Terminal, Cpu, Database, Palette, Sparkles as SparklesIcon } from 'lucide-react';
-
-const arsenal = [
-  { name: 'Tailwind CSS', icon: <Palette size={24} />, size: 'large', color: 'hover:bg-cyan-500/10 hover:border-cyan-500/50', description: 'Styling at speed without leaving your HTML.' },
-  { name: 'AI Integration', icon: <SparklesIcon size={24} />, size: 'medium', color: 'hover:bg-blue-600/10 hover:border-blue-600/50', description: 'Deploying LLMs and custom AI agents for business logic.' },
-  { name: 'JavaScript', icon: <Cpu size={24} />, size: 'medium', color: 'hover:bg-yellow-500/10 hover:border-yellow-500/50', description: 'Powering interactivity and logic.' },
-  { name: 'TypeScript', icon: <Terminal size={24} />, size: 'medium', color: 'hover:bg-blue-500/10 hover:border-blue-500/50', description: 'Type-safe codebase management.' },
-  { name: 'React', icon: <Database size={24} />, size: 'small', color: 'hover:bg-indigo-500/10 hover:border-indigo-500/50', description: 'Architecting scalable UI.' },
-];
+import * as d3 from 'd3';
 
 export default function Home() {
   return (
@@ -181,7 +174,175 @@ function Hero() {
   );
 }
 
+interface SkillNode extends d3.SimulationNodeDatum {
+  id: string;
+  name: string;
+  group: 'frontend' | 'backend' | 'intelligence' | 'core';
+  description: string;
+  rating: string;
+  color: string;
+  textColor: string;
+  radius: number;
+}
+
+interface SkillLink extends d3.SimulationLinkDatum<SkillNode> {
+  source: string | SkillNode;
+  target: string | SkillNode;
+  value: number;
+}
+
+const initialNodes: SkillNode[] = [
+  { id: '1', name: 'React', group: 'frontend', description: 'Architecting scalable, state-driven user interfaces using modern functional components, hooks, handles, and concurrent render patterns.', rating: '95%', color: '#61dafb', textColor: '#00d8ff', radius: 45 },
+  { id: '2', name: 'Tailwind CSS', group: 'frontend', description: 'Crafting highly responsive spacing hierarchies, bespoke visual token structures, and high-velocity layout setups without excess asset bloat.', rating: '98%', color: '#38bdf8', textColor: '#38bdf8', radius: 38 },
+  { id: '3', name: 'AI Integration', group: 'intelligence', description: 'Designing secure, low-latency API proxy structures, LLM response streams, and recursive multi-agent background solvers.', rating: '90%', color: '#2563eb', textColor: '#60a5fa', radius: 42 },
+  { id: '4', name: 'JavaScript', group: 'core', description: 'Harnessing the speed of modern Web API event loops, asynchronous macro/micro-task queues, and robust engine architectures.', rating: '95%', color: '#eab308', textColor: '#fef08a', radius: 34 },
+  { id: '5', name: 'TypeScript', group: 'core', description: 'Guarding compilation stability, structure consistency, and clear interface targets across large structural team codebases.', rating: '92%', color: '#3178c6', textColor: '#93c5fd', radius: 36 },
+  { id: '6', name: 'Node.js', group: 'backend', description: 'Powering high-capacity custom express servers, ESM-compatible paths bundling, and reliable asynchronous file streams.', rating: '88%', color: '#22c55e', textColor: '#86efac', radius: 35 },
+  { id: '7', name: 'Firebase', group: 'backend', description: 'Integrating Firestore reactive query streaming subscriptions, robust cloud storage, and client analytics tracking.', rating: '85%', color: '#f59e0b', textColor: '#fde047', radius: 34 },
+  { id: '8', name: 'D3.js', group: 'intelligence', description: 'Sculpting gorgeous interactive vector maps, complex custom charts, and force-directed mathematical simulations.', rating: '82%', color: '#f97316', textColor: '#fdba74', radius: 35 }
+];
+
+const initialLinks: { source: string; target: string; value: number }[] = [
+  { source: '4', target: '5', value: 2 }, // JS to TS
+  { source: '5', target: '1', value: 2 }, // TS to React
+  { source: '1', target: '2', value: 1 }, // React to Tailwind
+  { source: '1', target: '8', value: 2 }, // React to D3
+  { source: '1', target: '3', value: 3 }, // React to AI
+  { source: '3', target: '6', value: 2 }, // AI to Node
+  { source: '6', target: '4', value: 1 }, // Node to JS
+  { source: '6', target: '7', value: 2 }  // Node to Firebase
+];
+
 function ArsenalGrid() {
+  const [selectedNodeId, setSelectedNodeId] = useState<string>('1');
+  const svgRef = React.useRef<SVGSVGElement>(null);
+  
+  const activeSkill = initialNodes.find(n => n.id === selectedNodeId) || initialNodes[0];
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    // Clear previous runs to avoid duplication
+    const svgElement = d3.select(svgRef.current);
+    svgElement.selectAll('*').remove();
+
+    const width = 800;
+    const height = 500;
+
+    // Deep copy data for D3 use
+    const nodes: SkillNode[] = initialNodes.map(n => ({ ...n }));
+    const links: SkillLink[] = initialLinks.map(l => ({
+      source: l.source,
+      target: l.target,
+      value: l.value
+    }));
+
+    // Setup force simulation
+    const simulation = d3.forceSimulation<SkillNode>(nodes)
+      .force('link', d3.forceLink<SkillNode, SkillLink>(links)
+        .id(d => d.id)
+        .distance(120)
+      )
+      .force('charge', d3.forceManyBody().strength(-220))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide<SkillNode>().radius(d => d.radius + 14));
+
+    // Draw links
+    const link = svgElement.append('g')
+      .selectAll('line')
+      .data(links)
+      .enter()
+      .append('line')
+      .attr('stroke', document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.12)' : 'rgba(15, 23, 42, 0.08)')
+      .attr('stroke-width', d => Math.max(1.5, d.value * 1.5))
+      .attr('stroke-dasharray', d => d.value > 2 ? '4,4' : 'none');
+
+    // Draw node groups
+    const node = svgElement.append('g')
+      .selectAll('g')
+      .data(nodes)
+      .enter()
+      .append('g')
+      .attr('class', 'node-group cursor-pointer')
+      .on('click', (event, d) => {
+        setSelectedNodeId(d.id);
+        // Gentle kinetic resonance bounce
+        simulation.alphaTarget(0.12).restart();
+        setTimeout(() => simulation.alphaTarget(0), 400);
+      });
+
+    // Outer orbiting selection track
+    node.append('circle')
+      .attr('r', d => d.radius + 8)
+      .attr('fill', 'transparent')
+      .attr('stroke', d => d.color)
+      .attr('stroke-width', d => d.id === selectedNodeId ? 2 : 0)
+      .attr('stroke-opacity', 0.45)
+      .attr('stroke-dasharray', '5,3')
+      .attr('style', 'transform-origin: center;');
+
+    // Main brand node
+    node.append('circle')
+      .attr('r', d => d.id === selectedNodeId ? d.radius + 4 : d.radius)
+      .attr('fill', d => document.documentElement.classList.contains('dark') ? '#0b0f19' : '#1e293b')
+      .attr('stroke', d => d.color)
+      .attr('stroke-width', d => d.id === selectedNodeId ? 3.5 : 1.5)
+      .attr('style', 'transition: r 0.3s ease, stroke-width 0.3s ease;')
+      .style('filter', d => d.id === selectedNodeId ? `drop-shadow(0 0 12px ${d.color}35)` : 'none');
+
+    // Energy core badge offset
+    node.append('circle')
+      .attr('cx', 0)
+      .attr('cy', d => d.id === selectedNodeId ? -(d.radius + 4) : -d.radius)
+      .attr('r', 4.5)
+      .attr('fill', d => d.color);
+
+    // Node Name Tag
+    node.append('text')
+      .text(d => d.name)
+      .attr('text-anchor', 'middle')
+      .attr('dy', '.3em')
+      .attr('fill', d => d.textColor)
+      .attr('font-size', d => d.id === selectedNodeId ? '11px' : '9px')
+      .attr('font-family', 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace')
+      .attr('font-weight', 'bold')
+      .attr('style', 'pointer-events: none; transition: font-size 0.3s ease;');
+
+    // Drag constraints binding
+    const drag = d3.drag<SVGGElement, SkillNode>()
+      .on('start', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.25).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      })
+      .on('drag', (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
+      .on('end', (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      });
+
+    node.call(drag);
+
+    // Force step tick
+    simulation.on('tick', () => {
+      link
+        .attr('x1', d => (d.source as SkillNode).x!)
+        .attr('y1', d => (d.source as SkillNode).y!)
+        .attr('x2', d => (d.target as SkillNode).x!)
+        .attr('y2', d => (d.target as SkillNode).y!);
+
+      node.attr('transform', d => `translate(${d.x!}, ${d.y!})`);
+    });
+
+    return () => {
+      simulation.stop();
+    };
+  }, [selectedNodeId]);
+
   return (
     <section className="space-y-12">
       <div className="flex justify-between items-end">
@@ -190,39 +351,99 @@ function ArsenalGrid() {
           <h3 className="text-4xl font-display font-bold text-slate-900 dark:text-white">My Arsenal</h3>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-slate-900 dark:text-white">40+</div>
-          <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-gray-500">Projects Completed</div>
+          <div className="text-2xl font-bold text-slate-900 dark:text-white">Active</div>
+          <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-gray-500">Skill Graph Simulation</div>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
-        {arsenal.map((item, i) => (
-          <motion.div
-            key={item.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            whileHover={{ scale: 0.98 }}
-            className={`
-              glass rounded-3xl p-8 flex flex-col justify-between transition-all duration-500 group cursor-default
-              ${item.size === 'large' ? 'md:col-span-2 md:row-span-2' : ''}
-              ${item.size === 'medium' ? 'md:col-span-2 md:row-span-1' : ''}
-              ${item.color}
-            `}
-          >
-            <div className="flex items-center justify-between">
-              <div className="p-3 bg-blue-100/50 dark:bg-white/5 rounded-xl text-blue-600 dark:text-white group-hover:text-blue-500 transition-colors border border-blue-200/50 dark:border-white/10 shadow-sm dark:shadow-none">
-                {item.icon}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        {/* Interactive D3 canvas frame */}
+        <div className="lg:col-span-7 xl:col-span-8 glass rounded-[36px] overflow-hidden bg-slate-100/5 dark:bg-[#07070a]/40 border border-slate-200/40 dark:border-white/5 relative min-h-[350px] sm:min-h-[420px] lg:min-h-[500px] flex items-center justify-center">
+          <div className="absolute top-4 left-6 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <span className="text-[10px] font-mono tracking-widest text-slate-400 dark:text-white/30 uppercase">Interactive D3 Network</span>
+          </div>
+          
+          <div className="absolute top-4 right-6 text-[8px] font-mono text-slate-500 dark:text-white/20 uppercase">
+            Drag bubbles to disrupt forces • Tap to inspect
+          </div>
+
+          <svg 
+            ref={svgRef} 
+            viewBox="0 0 800 500" 
+            className="w-full h-full max-h-[500px]"
+          />
+        </div>
+
+        {/* Dynamic description info card sidebar */}
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col justify-between p-6 sm:p-8 rounded-[36px] glass bg-white dark:bg-[#0d0d12] border border-slate-200/50 dark:border-white/5 shadow-2xl relative min-h-[340px]">
+          
+          <div className="absolute top-0 right-10 w-px h-full bg-slate-100 dark:bg-white/5 pointer-events-none" />
+          
+          <div className="relative z-10 space-y-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-[9px] font-mono uppercase tracking-[0.25em] text-blue-500 font-bold block mb-1">
+                  Category: {activeSkill.group}
+                </span>
+                <h4 className="text-2xl sm:text-3xl font-display font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                  {activeSkill.name}
+                </h4>
               </div>
-              <div className="text-[10px] font-mono text-slate-500 dark:text-white/20 uppercase tracking-widest">{item.name.split(' ')[0]}</div>
+              
+              <div 
+                className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shadow-inner"
+                style={{ backgroundColor: `${activeSkill.color}20`, border: `1.5px solid ${activeSkill.color}`, color: activeSkill.color }}
+              >
+                ⚡
+              </div>
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">{item.name}</h3>
-              <p className="text-xs text-slate-600 dark:text-gray-500 mt-2 line-clamp-2 leading-relaxed font-medium dark:font-normal">{item.description}</p>
+
+            <p className="text-sm text-slate-600 dark:text-gray-400 font-medium dark:font-normal leading-relaxed">
+              {activeSkill.description}
+            </p>
+
+            {/* Proficiency visual gauge */}
+            <div className="pt-6 border-t border-slate-100 dark:border-white/5 space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-mono text-slate-500">
+                  <span>Knowledge Depth</span>
+                  <span className="font-bold text-slate-800 dark:text-white">{activeSkill.rating}</span>
+                </div>
+                <div className="w-full h-2 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden p-[1px] border border-slate-200/20 dark:border-white/15">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: activeSkill.rating }}
+                    transition={{ type: 'spring', stiffness: 80, damping: 20 }}
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: activeSkill.color }}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="bg-slate-50/50 dark:bg-white/[0.02] p-3 rounded-xl border border-slate-100 dark:border-white/5">
+                  <span className="block text-[8px] font-mono text-slate-400 uppercase tracking-wider mb-1">Status Target</span>
+                  <span className="text-xs font-bold font-mono text-slate-800 dark:text-white">PRODUCTION-READY</span>
+                </div>
+                <div className="bg-slate-50/50 dark:bg-white/[0.02] p-3 rounded-xl border border-slate-100 dark:border-white/5">
+                  <span className="block text-[8px] font-mono text-slate-400 uppercase tracking-wider mb-1">Scale Tier</span>
+                  <span className="text-xs font-bold font-mono text-slate-800 dark:text-white">ENTERPRISE CLOUD</span>
+                </div>
+              </div>
             </div>
-          </motion.div>
-        ))}
+          </div>
+
+          <div className="relative z-10 pt-6 mt-6 border-t border-slate-100 dark:border-white/5 text-[10px] font-mono text-slate-400 dark:text-white/20 flex items-center justify-between">
+            <span>D3 Simulator Active</span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              60 FPS LOCAL
+            </span>
+          </div>
+
+        </div>
       </div>
     </section>
   );
@@ -322,10 +543,6 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [lastUserInteraction, setLastUserInteraction] = useState(0);
 
-  useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-  }, []);
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
     setLastUserInteraction(Date.now());
@@ -347,6 +564,7 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
 
   const handleTouch = (e: React.TouchEvent) => {
     if (!cardRef.current) return;
+    setIsTouchDevice(true);
     setLastUserInteraction(Date.now());
     const rect = cardRef.current.getBoundingClientRect();
     const touch = e.touches[0];
