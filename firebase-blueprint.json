@@ -12,12 +12,37 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Submission timestamp" }
       },
       "required": ["name", "email", "objective", "message", "createdAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Showcase portfolio items managed via custom console",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Project title" },
+        "name": { "type": "string", "description": "Compatibility name field" },
+        "tagline": { "type": "string", "description": "One-line sub-title overview" },
+        "desc": { "type": "string", "description": "Short summary catalog description" },
+        "challenge": { "type": "string", "description": "Detailed challenge statement" },
+        "solution": { "type": "string", "description": "Detailed solution description" },
+        "image": { "type": "string", "description": "High-fidelity picture URL" },
+        "img": { "type": "string", "description": "Compatibility image URL" },
+        "wireframe": { "type": "string", "description": "Wireframe graphics URL" },
+        "preview": { "type": "string", "description": "Compatibility preview URL" },
+        "color": { "type": "string", "description": "Tailwind color gradient class prefix" },
+        "liveLink": { "type": "string", "description": "Live production external URL" },
+        "order": { "type": "number", "description": "Sorting index number" }
+      },
+      "required": ["title", "tagline", "challenge", "solution", "image", "wireframe", "color", "liveLink", "order"]
     }
   },
   "firestore": {
     "/messages/{messageId}": {
       "schema": "Message",
       "description": "Collection of contact messages"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Dynamic custom list of portfolio projects"
     }
   }
 }

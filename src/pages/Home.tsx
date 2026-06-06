@@ -230,6 +230,65 @@ function ArsenalGrid() {
 
 function FeaturedWork() {
   const navigate = useNavigate();
+  const [projectsList, setProjectsList] = useState<any[]>([
+    { 
+      id: 1, 
+      name: 'Pizza al Volo', 
+      desc: 'Redefining Roman street food through an elite digital portal. A study in high-contrast typography and wood-fired performance engineering.',
+      img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1200&auto=format&fit=crop',
+      preview: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=1200&auto=format&fit=crop',
+      liveLink: 'https://pizzaalvolo.vercel.app'
+    },
+    { 
+      id: 2, 
+      name: 'Aurelius Citadel', 
+      desc: 'Architecting a prestigious physical-meets-digital hub. A case study in luxury branding and high-stakes user flow optimization.',
+      img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop',
+      preview: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop',
+      liveLink: 'https://aurelius-academy-official.vercel.app/'
+    },
+    { 
+      id: 3, 
+      name: 'Palo Drive Thru Cafe', 
+      desc: 'A lightning-fast specialty coffee drive-thru portal set in Melton, Victoria. Maximizing velocity for commuters without sacrificing artisanal warmth.',
+      img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1200&auto=format&fit=crop',
+      preview: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=1200&auto=format&fit=crop',
+      liveLink: 'https://palo-drivethru.vercel.app'
+    },
+    { 
+      id: 4, 
+      name: 'Jays Roofing', 
+      desc: 'A premium digital branding portal for elite roofing craftsmen in Melton, Victoria. Engineered for resilience and sharp architectural display.',
+      img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
+      preview: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
+      liveLink: 'https://jays-roofing.vercel.app'
+    }
+  ]);
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Fallback logic active');
+      })
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((proj, idx) => ({
+            ...proj,
+            id: typeof proj.id === 'number' ? proj.id : (idx + 1),
+            name: proj.name || proj.title,
+            img: proj.img || proj.image,
+            preview: proj.preview || proj.wireframe,
+            desc: proj.desc || proj.tagline
+          }));
+          setProjectsList(mapped);
+        }
+      })
+      .catch(err => {
+        console.log('Using local featured list', err);
+      });
+  }, []);
+
   return (
     <section className="space-y-16">
       <div className="flex justify-between items-end">
@@ -245,33 +304,8 @@ function FeaturedWork() {
         </button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[
-          { 
-            id: 1, 
-            name: 'Pizza al Volo', 
-            desc: 'Redefining Roman street food through an elite digital portal. A study in high-contrast typography and wood-fired performance engineering.',
-            img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1200&auto=format&fit=crop',
-            preview: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=1200&auto=format&fit=crop',
-            liveLink: 'https://pizzaalvolo.vercel.app'
-          },
-          { 
-            id: 2, 
-            name: 'Aurelius Citadel', 
-            desc: 'Architecting a prestigious physical-meets-digital hub. A case study in luxury branding and high-stakes user flow optimization.',
-            img: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=1200&auto=format&fit=crop',
-            preview: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1200&auto=format&fit=crop',
-            liveLink: 'https://aurelius-academy-official.vercel.app/'
-          },
-          { 
-            id: 3, 
-            name: 'Palo Drive Thru Cafe', 
-            desc: 'A lightning-fast specialty coffee drive-thru portal set in Melton, Victoria. Maximizing velocity for commuters without sacrificing artisanal warmth.',
-            img: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=1200&auto=format&fit=crop',
-            preview: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200&auto=format&fit=crop',
-            liveLink: 'https://palo-drivethru.vercel.app'
-          }
-        ].map((project) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {projectsList.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>
@@ -285,9 +319,16 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = React.useRef<HTMLDivElement>(null);
   const rafRef = React.useRef<number>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [lastUserInteraction, setLastUserInteraction] = useState(0);
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
+    setLastUserInteraction(Date.now());
     const rect = cardRef.current.getBoundingClientRect();
     const newPoint = {
       x: e.clientX - rect.left,
@@ -304,6 +345,26 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
     });
   };
 
+  const handleTouch = (e: React.TouchEvent) => {
+    if (!cardRef.current) return;
+    setLastUserInteraction(Date.now());
+    const rect = cardRef.current.getBoundingClientRect();
+    const touch = e.touches[0];
+    if (!touch) return;
+    const newPoint = {
+      x: touch.clientX - rect.left,
+      y: touch.clientY - rect.top,
+      time: Date.now(),
+      id: Math.random(),
+    };
+    
+    setTrail(prev => {
+      const last = prev[prev.length - 1];
+      if (last && Math.abs(last.x - newPoint.x) < 3 && Math.abs(last.y - newPoint.y) < 3) return prev;
+      return [...prev, newPoint].slice(-120);
+    });
+  };
+
   useEffect(() => {
     const updateTrail = () => {
       const now = Date.now();
@@ -316,11 +377,34 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
     };
   }, []);
 
+  // Ambient Sweep effect for touch devices so they get free, elegant visual peek action
+  useEffect(() => {
+    if (!isTouchDevice) return;
+    const interval = setInterval(() => {
+      const now = Date.now();
+      if (now - lastUserInteraction < 2000) return; // Wait 2 seconds after user touch
+      
+      if (!cardRef.current) return;
+      const rect = cardRef.current.getBoundingClientRect();
+      const timeFactor = now / 1500;
+      // Gentle floating sine sweep coordinates
+      const x = rect.width / 2 + Math.cos(timeFactor) * (rect.width * 0.35);
+      const y = rect.height / 2 + Math.sin(timeFactor * 1.5) * (rect.height * 0.25);
+      
+      setTrail(prev => {
+        const filtered = prev.filter(p => now - p.time < 2400);
+        return [...filtered, { x, y, time: now, id: Math.random() }].slice(-120);
+      });
+    }, 60);
+
+    return () => clearInterval(interval);
+  }, [isTouchDevice, lastUserInteraction]);
+
   const maskImage = trail.length > 0 
     ? trail.map((p) => {
         const age = Date.now() - p.time;
         const progress = Math.max(0, 1 - age / 2400);
-        const radius = 120 * progress;
+        const radius = (isTouchDevice ? 150 : 120) * progress;
         return `radial-gradient(circle ${radius}px at ${p.x}px ${p.y}px, black 100%, transparent 100%)`;
       }).join(', ')
     : 'none';
@@ -332,6 +416,8 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
       onMouseMove={handleMouseMove}
+      onTouchStart={handleTouch}
+      onTouchMove={handleTouch}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => navigate(`/work#project-${project.id}`)}

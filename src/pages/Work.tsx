@@ -3,7 +3,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ExternalLink, Github, ArrowRight, X } from 'lucide-react';
 
-const projects = [
+const DEFAULT_PROJECTS = [
   {
     id: 1,
     title: 'Pizza al Volo',
@@ -36,6 +36,17 @@ const projects = [
     wireframe: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop',
     color: 'from-amber-650/20 to-orange-950/20',
     liveLink: 'https://palo-drivethru.vercel.app'
+  },
+  {
+    id: 4,
+    title: 'Jays Roofing',
+    tagline: 'Premium Domestic Shielding & Structural Digital Engineering',
+    challenge: 'Situated in Melton, Victoria, Jays Roofing required an assertive digital presence that properly showcases their resilient structural work. The existing service catalog missed the clean premium positioning necessary to attract high-end residential and commercial building developments.',
+    solution: 'I engineered a minimalist, high-impact branding platform showcasing top-tier steel and tile craftsmanship. By employing sleek high-contrast components, fine-tuned layouts, and lightning-fast lazy-loaded galleries, the workspace captures the absolute precision and security of their roofing solutions.',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
+    wireframe: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=800&auto=format&fit=crop',
+    color: 'from-slate-700/20 to-zinc-900/20',
+    liveLink: 'https://jays-roofing.vercel.app'
   }
 ];
 
@@ -43,6 +54,27 @@ export default function Work() {
   const location = useLocation();
   const navigate = useNavigate();
   const [toast, setToast] = useState<{ show: boolean; projectTitle: string } | null>(null);
+  const [projectsList, setProjectsList] = useState<any[]>(DEFAULT_PROJECTS);
+
+  useEffect(() => {
+    fetch('/api/projects')
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Fallback logic active');
+      })
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const normalized = data.map((p, index) => ({
+            ...p,
+            id: typeof p.id === 'number' ? p.id : (index + 1)
+          }));
+          setProjectsList(normalized);
+        }
+      })
+      .catch(err => {
+        console.log('Using local portfolio list', err);
+      });
+  }, []);
 
   useEffect(() => {
     if (toast?.show) {
@@ -77,13 +109,13 @@ export default function Work() {
         >
           Selected <span className="text-blue-600 block sm:inline">Masterpieces.</span>
         </motion.h1>
-        <p className="text-slate-600 dark:text-gray-400 mt-6 text-lg max-w-xl">
+         <p className="text-slate-600 dark:text-gray-400 mt-6 text-lg max-w-xl">
           A deep dive into the challenges I've solved and the technical logic that brought them to life.
         </p>
       </header>
 
       <div className="space-y-60">
-        {projects.map((project, index) => (
+        {projectsList.map((project, index) => (
           <div key={project.id} id={`project-${project.id}`}>
             <ProjectSection 
               project={project} 

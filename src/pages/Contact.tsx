@@ -1,28 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, CheckCircle2, Mail, MapPin, Linkedin, Twitter, Calculator } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { Send, CheckCircle2, Mail, MapPin, Linkedin, Twitter, Calculator, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CostCalculator from '../components/CostCalculator';
-
-enum OperationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
-}
-
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    operationType,
-    path
-  };
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
-}
 
 export default function Contact() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success'>('idle');
@@ -39,14 +19,18 @@ export default function Contact() {
     setStatus('sending');
     
     try {
-      await addDoc(collection(db, 'messages'), {
-        ...formData,
-        createdAt: serverTimestamp()
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
+      if (!response.ok) {
+        throw new Error('Failed to send transmission');
+      }
       setStatus('success');
       setFormData({ name: '', email: '', objective: 'New Project', message: '' });
     } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'messages');
+      console.error('Contact submit error:', error);
       setStatus('idle');
     }
   };
@@ -80,15 +64,15 @@ export default function Contact() {
           </motion.div>
 
           <div className="space-y-8">
-            <a href="mailto:muhammadbinjunaid2010@gmail.com" className="flex items-center gap-6 group cursor-pointer">
+            <div className="flex items-center gap-6 group">
               <div className="p-4 glass rounded-3xl group-hover:bg-blue-500/10 group-hover:border-blue-500/50 transition-all">
                 <Mail className="text-blue-500" />
               </div>
               <div>
                 <p className="text-[10px] text-slate-400 dark:text-gray-500 uppercase tracking-widest font-bold">Inquiries</p>
-                <p className="text-lg font-medium break-all sm:break-normal group-hover:text-blue-400 transition-colors text-slate-900 dark:text-white">muhammadbinjunaid2010@gmail.com</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-gray-400 italic">Official email address will be replaced here soon</p>
               </div>
-            </a>
+            </div>
             <a href="https://wa.me/923330034535" target="_blank" rel="noopener noreferrer" className="flex items-center gap-6 group cursor-pointer">
               <div className="p-4 glass rounded-3xl group-hover:bg-blue-500/10 group-hover:border-blue-500/50 transition-all">
                 <Mail className="text-blue-500" />
@@ -133,6 +117,16 @@ export default function Contact() {
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="pt-6">
+            <Link
+              to="/developer"
+              className="inline-flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-gray-500 hover:text-blue-500 transition-colors cursor-pointer"
+            >
+              <Lock size={12} />
+              Developer Access
+            </Link>
           </div>
         </div>
 

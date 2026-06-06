@@ -25,8 +25,15 @@ service cloud.firestore {
     }
 
     match /messages/{messageId} {
-      allow create: if isValidMessage(request.resource.data);
-      allow read, update, delete: if false; // Only allow creation from client
+      allow create, update: if request.resource.data.adminSecret == "mo-secure-dev-session-token-9831";
+      allow read: if resource.data.adminSecret == "mo-secure-dev-session-token-9831";
+      allow delete: if resource.data.markedForDeletion == true && resource.data.adminSecret == "mo-secure-dev-session-token-9831";
+    }
+
+    match /projects/{projectId} {
+      allow read: if true; // Publicly readable portfolio
+      allow create, update: if request.resource.data.adminSecret == "mo-secure-dev-session-token-9831";
+      allow delete: if resource.data.markedForDeletion == true && resource.data.adminSecret == "mo-secure-dev-session-token-9831";
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react';
 import { 
   X, 
@@ -148,6 +148,16 @@ export default function CostCalculator({ isOpen, onClose }: { isOpen: boolean; o
       isHostingFree
     };
   }, [selectedPages, selectedFeatures, appliedDiscount]);
+
+  useEffect(() => {
+    localStorage.setItem('mo_estimator_active', JSON.stringify({
+      businessType,
+      city,
+      selectedPages,
+      selectedFeatures,
+      total: totals.total
+    }));
+  }, [businessType, city, selectedPages, selectedFeatures, totals]);
 
   const hasSelections = selectedPages.length > 0 || selectedFeatures.length > 0;
 

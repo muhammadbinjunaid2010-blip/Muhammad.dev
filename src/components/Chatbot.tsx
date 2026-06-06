@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, Loader2, Bot, ExternalLink } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  sources?: Array<{ title: string; uri: string }>;
 }
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Nova proxy active. State your inquiry regarding Mo's engineering or playground experiments." }
+    { role: 'assistant', content: "Nova proxy active. State your inquiry regarding Mo's engineering or playground experiments. Our neural link is grounded with live web telemetry." }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +31,17 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
+    // Retrieve active estimator selections if available to make Nova responsive to the user's current project build
+    let estimateContext = null;
+    try {
+      const stored = localStorage.getItem('mo_estimator_active');
+      if (stored) {
+        estimateContext = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.log('Error reading active estimate:', e);
+    }
+
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -37,8 +49,9 @@ export default function Chatbot() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          messages,
-          userMessage
+          messages: messages.map(m => ({ role: m.role, content: m.content })),
+          userMessage,
+          estimateContext
         })
       });
 
@@ -48,7 +61,11 @@ export default function Chatbot() {
 
       const data = await response.json();
       const assistantMessage = data.text || "I apologize, my neural link was interrupted.";
-      setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: assistantMessage,
+        sources: data.sources
+      }]);
     } catch (error) {
       console.error("Chatbot Error:", error);
       setMessages(prev => [...prev, { role: 'assistant', content: "The transmission failed. I'm currently recalibrating." }]);
@@ -120,6 +137,26 @@ export default function Chatbot() {
                         : 'glass text-slate-700 dark:text-gray-300 rounded-bl-none'
                     }`}>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap font-medium dark:font-normal">{m.content}</p>
+                      
+                      {m.sources && m.sources.length > 0 && (
+                        <div className="mt-3 pt-2.5 border-t border-slate-200/10 dark:border-white/10 flex flex-col gap-1.5">
+                          <span className="text-[9px] font-mono uppercase tracking-widest text-[#94A3B8] dark:text-[#64748B] font-bold block">Verified Sources:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {m.sources.map((src, idx) => (
+                              <a 
+                                key={idx} 
+                                href={src.uri} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-[9px] font-mono tracking-tight text-blue-600 dark:text-blue-400 rounded transition-colors border border-slate-200/50 dark:border-white/5 cursor-pointer"
+                              >
+                                <span>{src.title.length > 18 ? src.title.slice(0, 16) + '...' : src.title}</span>
+                                <ExternalLink size={10} />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}

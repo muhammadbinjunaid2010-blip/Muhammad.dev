@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Work from './pages/Work';
 import Playground from './pages/Playground';
 import Contact from './pages/Contact';
+import Developer from './pages/Developer';
 import Navbar from './components/Navbar';
 import Chatbot from './components/Chatbot';
 
@@ -55,6 +56,7 @@ export default function App() {
               <Route path="/work" element={<Work />} />
               <Route path="/playground" element={<Playground />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/developer" element={<Developer />} />
             </Routes>
           </AnimatePresence>
           <Chatbot />
