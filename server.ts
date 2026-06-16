@@ -91,6 +91,22 @@ const DEFAULT_PROJECTS = [
     color: 'from-slate-700/20 to-zinc-900/20',
     liveLink: 'https://jays-roofing.vercel.app',
     order: 4
+  },
+  {
+    id: '5',
+    title: 'Melton Barber House',
+    name: 'Melton Barber House',
+    tagline: 'Premium Barbering, Head Structure Diagnostics & Luxury Australian Hospitality',
+    desc: 'A premium grooming sanctuary set in Melton, Victoria. Integrating anatomical hair diagnostics, dedicated schedule buffers, and luxury hospitality.',
+    challenge: 'A highly acclaimed grooming sanctuary in Melton, Victoria, required a premium digital showcase that captured the detailed physical mastery of their barbers. Most platforms in the industry promote a clinical, transactional feel, which diluted the Barber House\'s emphasis on anatomical head design, dedicated spacing frames, and luxury hot towel wellness treatments.',
+    solution: 'I engineered a rich, high-contrast digital experience mimicking the tactile warmth of their cabin space. Integrating fluid reservation prompts, detailed artisan profile metrics showing specific core competencies (skin fades, beard sculpting), and custom FAQ modules, the platform operates with impeccable smoothness and has solidified their premier local standing.',
+    image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1600&auto=format&fit=crop',
+    img: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1600&auto=format&fit=crop',
+    wireframe: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=1600&auto=format&fit=crop',
+    preview: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=1600&auto=format&fit=crop',
+    color: 'from-amber-500/20 to-yellow-900/20',
+    liveLink: 'https://melton-barber-house.vercel.app/',
+    order: 5
   }
 ];
 

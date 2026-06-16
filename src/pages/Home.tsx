@@ -483,6 +483,14 @@ function FeaturedWork() {
       img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop',
       preview: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop',
       liveLink: 'https://jays-roofing.vercel.app'
+    },
+    { 
+      id: 5, 
+      name: 'Melton Barber House', 
+      desc: 'A premium grooming sanctuary set in Melton, Victoria. Integrating anatomical hair diagnostics, dedicated schedule buffers, and luxury hospitality.',
+      img: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?q=80&w=1600&auto=format&fit=crop',
+      preview: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=1600&auto=format&fit=crop',
+      liveLink: 'https://melton-barber-house.vercel.app/'
     }
   ]);
 
@@ -526,15 +534,17 @@ function FeaturedWork() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {projectsList.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+        {projectsList.map((project, index) => (
+          <div key={project.id} className={index === 4 ? "md:col-span-2" : ""}>
+            <ProjectCard project={project} isLarge={index === 4} />
+          </div>
         ))}
       </div>
     </section>
   );
 }
 
-function ProjectCard({ project }: { project: any; key?: React.Key }) {
+function ProjectCard({ project, isLarge }: { project: any; isLarge?: boolean; key?: React.Key }) {
   const navigate = useNavigate();
   const [trail, setTrail] = useState<{ x: number; y: number; time: number; id: number }[]>([]);
   const [isHovered, setIsHovered] = useState(false);
@@ -639,7 +649,7 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => navigate(`/work#project-${project.id}`)}
-      className="group relative h-[400px] sm:h-[500px] rounded-[40px] overflow-hidden glass hover:border-blue-500/50 transition-all duration-700 cursor-pointer"
+      className={`group relative ${isLarge ? 'h-[320px] sm:h-[380px] md:h-[400px]' : 'h-[400px] sm:h-[500px]'} rounded-[40px] overflow-hidden glass hover:border-blue-500/50 transition-all duration-700 cursor-pointer`}
     >
       {/* Background Image (Primary) */}
       <img 
@@ -677,7 +687,7 @@ function ProjectCard({ project }: { project: any; key?: React.Key }) {
           <span className="text-blue-500 text-[10px] font-mono uppercase tracking-widest font-bold">Case Study / 0{project.id}</span>
         </div>
         <h3 className="text-3xl font-bold uppercase tracking-tighter text-white drop-shadow-md">{project.name}</h3>
-        <p className="text-gray-200 dark:text-gray-300 text-sm max-w-xs leading-relaxed font-medium dark:font-normal drop-shadow-sm">{project.desc}</p>
+        <p className={`text-gray-200 dark:text-gray-300 text-sm ${isLarge ? 'max-w-2xl' : 'max-w-xs'} leading-relaxed font-medium dark:font-normal drop-shadow-sm`}>{project.desc}</p>
         <div className="pt-4 flex gap-4">
           <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 text-white group-hover:text-blue-400 transition-colors">
             View Project <span className="text-blue-500">→</span>
